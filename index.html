@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Bengali HTML editor</title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <svg width="0" height="0" aria-hidden="true" class="symbols">
+      <defs>
+        <symbol id="i-panel" viewBox="0 0 24 24">
+          <path d="M3 4h18v16H3z M9 4v16" />
+        </symbol>
+        <symbol id="i-folder" viewBox="0 0 24 24">
+          <path d="M3 7V5h6l2 2h10v12H3z" />
+        </symbol>
+        <symbol id="i-globe" viewBox="0 0 24 24">
+          <path
+            d="M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0 M3 12h18 M12 3c5 5 5 13 0 18-5-5-5-13 0-18"
+          />
+        </symbol>
+        <symbol id="i-save" viewBox="0 0 24 24">
+          <path d="M12 3v12 M7 10l5 5 5-5 M4 15v5h16v-5" />
+        </symbol>
+        <symbol id="i-file" viewBox="0 0 24 24">
+          <path d="M5 3h9l5 5v13H5z M14 3v6h5" />
+        </symbol>
+        <symbol id="i-expand" viewBox="0 0 24 24">
+          <path d="M9 4H4v5 M15 4h5v5 M4 15v5h5 M20 15v5h-5" />
+        </symbol>
+        <symbol id="i-undo" viewBox="0 0 24 24">
+          <path d="M9 5 4 10l5 5 M4 10h10a6 6 0 0 1 6 6" />
+        </symbol>
+        <symbol id="i-redo" viewBox="0 0 24 24">
+          <path d="m15 5 5 5-5 5 M20 10H10a6 6 0 0 0-6 6" />
+        </symbol>
+        <symbol id="i-code" viewBox="0 0 24 24">
+          <path d="m8 7-5 5 5 5 m8-10 5 5-5 5" />
+        </symbol>
+      </defs>
+    </svg>
+    <header class="toolbar">
+      <button
+        id="explorer-toggle"
+        title="Toggle file explorer"
+        aria-label="Toggle file explorer"
+        aria-controls="explorer"
+        aria-expanded="true"
+      >
+        <svg class="icon" aria-hidden="true"><use href="#i-panel" /></svg>
+      </button>
+      <span class="toolbar-rule"></span>
+      <button id="open-folder">
+        <svg class="icon" aria-hidden="true"><use href="#i-folder" /></svg>Open
+        folder
+      </button>
+      <input id="folder" type="file" webkitdirectory multiple hidden />
+      <button id="browse">
+        <svg class="icon" aria-hidden="true"><use href="#i-globe" /></svg>Open
+        from live
+      </button>
+      <button id="save" class="primary" disabled>
+        <svg class="icon" aria-hidden="true"><use href="#i-save" /></svg>Save
+        HTML
+      </button>
+    </header>
+    <form id="live-form" hidden>
+      <label for="live-url">Published page URL</label
+      ><input
+        id="live-url"
+        type="url"
+        required
+        value="https://www.ramakrishnavivekananda.info/"
+      /><button>Load page</button>
+    </form>
+    <p id="notice" role="status" hidden></p>
+    <main>
+      <aside id="explorer">
+        <h2>Explorer</h2>
+        <p class="explorer-empty">No folder open</p>
+        <details id="archive" hidden>
+          <summary id="folder-name">Archive folder</summary>
+          <input
+            id="chapter-search"
+            type="search"
+            aria-label="Search page paths"
+            placeholder="Find a page…"
+          />
+          <div id="chapter-tree" aria-label="HTML pages"></div>
+          <button id="open-chapter" disabled>Open selected page</button>
+        </details>
+      </aside>
+      <div class="workspace">
+        <div class="document-tab">
+          <nav id="documents" aria-label="Open documents"></nav>
+          <h1 id="name">Editor</h1>
+          <span id="status" role="status"></span>
+        </div>
+        <div class="start" id="start">
+          <div class="start-content">
+            <svg class="icon" aria-hidden="true"><use href="#i-code" /></svg>
+            <h2>Open a page to edit</h2>
+            <button data-action="open-folder">
+              <svg class="icon" aria-hidden="true"><use href="#i-folder" /></svg
+              >Open a local folder
+            </button>
+            <button data-action="browse">
+              <svg class="icon" aria-hidden="true"><use href="#i-globe" /></svg
+              >Open a published page
+            </button>
+          </div>
+        </div>
+        <div class="panes" hidden>
+          <section class="editor-pane" aria-label="Source editor">
+            <div class="bar">
+              <h2>Source</h2>
+              <select id="mode" disabled aria-label="Source display">
+                <option value="read">Bengali</option>
+                <option value="raw">HTML</option>
+              </select>
+              <button id="undo" disabled title="Undo (Ctrl+Z or ⌘Z)">
+                <svg class="icon" aria-hidden="true">
+                  <use href="#i-undo" />
+                </svg>
+                Undo
+              </button>
+              <button id="redo" disabled title="Redo (Ctrl+Shift+Z or ⌘⇧Z)">
+                <svg class="icon" aria-hidden="true">
+                  <use href="#i-redo" />
+                </svg>
+                Redo
+              </button>
+            </div>
+            <div class="source-area">
+              <div class="line-gutter" aria-hidden="true">
+                <div id="line-mirror"></div>
+              </div>
+              <div class="source-content">
+                <pre id="highlight" aria-hidden="true"></pre>
+                <textarea
+                  id="source"
+                  disabled
+                  aria-label="HTML source"
+                  spellcheck="false"
+                ></textarea>
+              </div>
+            </div>
+
+            <footer class="source-footer">
+              <button
+                id="phonetic-toggle"
+                disabled
+                aria-expanded="false"
+                aria-controls="phonetic"
+              >
+                Avro phonetic</button
+              ><span id="lines"></span>
+            </footer>
+            <form id="phonetic" hidden>
+              <label for="roman">Type phonetically at the source cursor</label>
+              <input
+                id="roman"
+                placeholder="ami banglay gan gai"
+                autocomplete="off"
+                autocapitalize="off"
+                spellcheck="false"
+              />
+              <div class="composition">
+                <output id="bangla" for="roman" lang="bn"></output
+                ><button id="insert" disabled>Insert Bengali</button>
+              </div>
+            </form>
+          </section>
+          <div
+            id="divider"
+            role="separator"
+            tabindex="0"
+            aria-label="Resize editor panes"
+            aria-valuemin="20"
+            aria-valuemax="80"
+            aria-valuenow="50"
+          ></div>
+
+          <section id="review-pane" aria-label="Page review">
+            <div class="bar tabs">
+              <button data-tab="preview" aria-pressed="true">Preview</button
+              ><button data-tab="live" disabled>Published</button
+              ><button data-tab="diff" disabled>Diff</button>
+              <button
+                id="fullscreen"
+                title="Full screen"
+                aria-label="Full screen"
+                aria-pressed="false"
+              >
+                <svg class="icon" aria-hidden="true">
+                  <use href="#i-expand" />
+                </svg>
+              </button>
+            </div>
+            <div id="review-tools" hidden>
+              <label for="published-url">Compare with</label
+              ><input id="published-url" type="url" /><button id="reload">
+                Load</button
+              ><a id="published-link" target="_blank" rel="noopener noreferrer"
+                >Open original in new tab</a
+              >
+            </div>
+            <iframe
+              id="preview"
+              title="Page preview"
+              sandbox="allow-same-origin"
+            ></iframe>
+            <div id="diff" hidden></div>
+            <footer id="pane-status">Edited preview</footer>
+          </section>
+        </div>
+      </div>
+    </main>
+    <footer class="statusbar">
+      <span id="location">No open document</span><span id="encoding"></span>
+    </footer>
+    <script src="editor.js"></script>
+    <script src="workspace.js"></script>
+  </body>
+</html>

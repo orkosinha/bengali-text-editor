@@ -1,0 +1,18 @@
+{
+  "name": "bengali-text-editor",
+  "private": true,
+  "scripts": {
+    "build:tree": "esbuild archive-tree.js --bundle --minify --format=iife --outfile=vendor/pierre/archive-tree.js",
+    "start": "node server.mjs",
+    "build:diff": "esbuild diff-view.js --bundle --minify --format=iife --global-name=TextDiff --outfile=vendor/diff.js",
+    "build:highlight": "esbuild highlight.js --bundle --minify --format=iife --global-name=SourceHighlight --outfile=vendor/highlight.js"
+  },
+  "dependencies": {
+    "@pierre/trees": "1.0.0",
+    "diff": "9.0.0",
+    "prismjs": "1.30.0"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.2"
+  }
+}
