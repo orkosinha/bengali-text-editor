@@ -24,8 +24,7 @@ function mount(group) {
   selected = [];
   openButton.textContent = 'Open selected page';
   openButton.disabled = true;
-  if (kind !== 'live' || !matchMedia('(max-width:700px)').matches)
-    setExplorer(true);
+  if (kind !== 'live' || !compact.matches) setExplorer(true);
   panel.hidden = false;
   panel.open = true;
   document.getElementById('folder-name').textContent = name;

@@ -2,7 +2,10 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <meta
+      name="viewport"
+      content="width=device-width,initial-scale=1,interactive-widget=resizes-content"
+    />
     <title>Bengali HTML editor</title>
     <link rel="stylesheet" href="style.css" />
   </head>
@@ -76,6 +79,11 @@
     </form>
     <p id="notice" role="status" hidden></p>
     <main>
+      <button
+        id="drawer-backdrop"
+        hidden
+        aria-label="Close file explorer"
+      ></button>
       <aside id="explorer">
         <h2>Explorer</h2>
         <p class="explorer-empty">No folder open</p>
@@ -96,6 +104,9 @@
           <nav id="documents" aria-label="Open documents"></nav>
           <h1 id="name">Editor</h1>
           <span id="status" role="status"></span>
+          <button id="switch-pane" hidden aria-controls="review-pane">
+            Preview
+          </button>
         </div>
         <div class="start" id="start">
           <div class="start-content">

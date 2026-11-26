@@ -407,38 +407,6 @@ h1 {
 output {
   font-family: Bengali, serif;
 }
-@media (max-width: 700px) {
-  .toolbar {
-    gap: 1px;
-    padding: 4px;
-  }
-  .toolbar button {
-    font-size: 13px;
-    gap: 4px;
-    padding: 5px;
-  }
-  .toolbar-rule {
-    display: none;
-  }
-  #explorer {
-    position: absolute;
-    inset: 0 auto 0 0;
-    width: min(280px, 82vw);
-    z-index: 3;
-    box-shadow: 8px 0 20px #0006;
-  }
-  .panes {
-    grid-template-columns: 1fr;
-    grid-template-rows: minmax(0, var(--split, 50%)) 6px minmax(0, 1fr);
-  }
-  #divider {
-    cursor: row-resize;
-  }
-  .statusbar {
-    flex-wrap: wrap;
-    gap: 2px;
-  }
-}
 .source-area {
   position: relative;
   flex: 1;
@@ -584,4 +552,144 @@ output {
 }
 #status {
   flex: none;
+}
+
+#switch-pane,
+#drawer-backdrop {
+  display: none;
+}
+@media (max-width: 760px), (max-width: 960px) and (max-height: 520px) {
+  .toolbar {
+    padding: 0 4px;
+    gap: 0;
+    flex-wrap: wrap;
+  }
+  .toolbar button,
+  .bar button,
+  .file-tab button,
+  .source-footer button,
+  #switch-pane,
+  #open-chapter,
+  #live-form button,
+  #insert,
+  #reload,
+  summary {
+    min-height: 44px;
+  }
+  .toolbar button {
+    font-size: 13px;
+    padding: 4px 6px;
+    gap: 4px;
+  }
+  #explorer-toggle,
+  #fullscreen,
+  .close-tab {
+    min-width: 44px;
+  }
+  .toolbar-rule,
+  .toolbar button:not(#explorer-toggle) svg {
+    display: none;
+  }
+  .document-tab {
+    height: 46px;
+    gap: 4px;
+    padding-right: 4px;
+  }
+  #documents {
+    flex: 1;
+  }
+  #status:not(:empty) {
+    max-width: 6em;
+    line-height: 1.15;
+  }
+  .file-tab button:first-child {
+    max-width: 45vw;
+  }
+  #switch-pane {
+    display: inline-flex;
+    color: var(--accent);
+    flex: none;
+  }
+  #explorer {
+    position: absolute;
+    inset: 0 auto 0 0;
+    width: min(310px, 85vw);
+    z-index: 3;
+    overscroll-behavior: contain;
+  }
+  #drawer-backdrop {
+    display: block;
+    position: absolute;
+    inset: 0;
+    background: #0008;
+    border: 0;
+    border-radius: 0;
+    z-index: 2;
+  }
+  #chapter-tree {
+    height: clamp(100px, calc(100dvh - 280px), 850px);
+  }
+  .panes {
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+  }
+  .panes > section {
+    flex: 1;
+  }
+  .panes:not(.show-review) #review-pane:not(:fullscreen):not(.is-fullscreen),
+  .panes.show-review .editor-pane,
+  #divider {
+    display: none;
+  }
+  .editor-pane {
+    overflow: auto;
+  }
+  .source-area {
+    min-height: 5lh;
+  }
+  .bar {
+    padding: 0 4px;
+    gap: 2px;
+  }
+  .bar select {
+    font-size: 16px;
+  }
+  #source,
+  #highlight,
+  #line-mirror,
+  .source-area,
+  input {
+    font-size: 16px;
+  }
+  .source-footer {
+    padding: 0 8px;
+  }
+  #live-form label,
+  #review-tools label {
+    flex-basis: 100%;
+  }
+  #published-link {
+    overflow-wrap: anywhere;
+  }
+  .composition {
+    align-items: flex-start;
+  }
+  #bangla {
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  #insert {
+    flex: none;
+  }
+  .statusbar {
+    gap: 4px;
+    padding: 3px 6px;
+  }
+  #encoding {
+    flex: 0 1 auto;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
 }

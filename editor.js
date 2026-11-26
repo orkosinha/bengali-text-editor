@@ -309,7 +309,10 @@ function paintTabs() {
 
 function activate(doc) {
   latestOpen++;
-  if (doc === active) return;
+  if (doc === active) {
+    if (compact.matches) setExplorer(false);
+    return;
+  }
   remember();
   active = doc;
   closeComposition();
@@ -437,8 +440,7 @@ async function openDocument(
       charset: decoded.charset,
       bom: bytes.slice(0, decoded.signature),
       newline: decoded.text.match(/\r\n|\r|\n/)?.[0] || '\n',
-      entities:
-        decoded.charset !== 'utf-8' || usesBengaliReferences(text),
+      entities: decoded.charset !== 'utf-8' || usesBengaliReferences(text),
       past: [],
       future: [],
       tab: 'preview',

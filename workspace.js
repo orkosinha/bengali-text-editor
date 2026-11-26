@@ -117,7 +117,9 @@ function resetReview(url, baseline = null) {
   document.querySelector('.panes').hidden = !url;
   el('start').hidden = Boolean(url);
   el('location').textContent = url ? new URL(url).pathname : 'No open document';
-  if (stacked.matches) setExplorer(!url && !el('archive').hidden);
+  el('switch-pane').hidden = !url;
+  showMobileReview(false);
+  if (compact.matches) setExplorer(!url && !el('archive').hidden);
   liveDocument = baseline !== null;
   published = baseline;
   tab = 'preview';
@@ -211,6 +213,9 @@ async function followPage(url) {
 }
 
 function editAt(rawOffset) {
+  showMobileReview(false);
+  if (document.fullscreenElement === reviewPane) document.exitFullscreen();
+  if (reviewPane.classList.contains('is-fullscreen')) exitExpandedPane();
   let index = rawOffset;
   for (const [end, removed] of offsets) {
     if (end + removed > rawOffset) break;
@@ -364,18 +369,23 @@ style.textContent =
 frame.head.append(style);
 const divider = el('divider');
 const panes = divider.parentElement;
-const stacked = matchMedia('(max-width:700px)');
+const compact = matchMedia(
+  '(max-width: 760px), (max-width: 960px) and (max-height: 520px)',
+);
+function showMobileReview(show) {
+  panes.classList.toggle('show-review', show);
+  el('switch-pane').textContent = show ? 'Edit source' : 'Preview';
+}
+el('switch-pane').onclick = () =>
+  showMobileReview(!panes.classList.contains('show-review'));
 function resize(value) {
   const percent = Math.min(80, Math.max(20, value));
   panes.style.setProperty('--split', percent + '%');
   divider.setAttribute('aria-valuenow', String(Math.round(percent)));
-  divider.setAttribute(
-    'aria-orientation',
-    stacked.matches ? 'horizontal' : 'vertical',
-  );
+  divider.setAttribute('aria-orientation', 'vertical');
 }
 resize(50);
-stacked.onchange = () => resize(Number(divider.getAttribute('aria-valuenow')));
+compact.onchange = () => setExplorer(!compact.matches);
 divider.onpointerdown = (event) => {
   divider.setPointerCapture(event.pointerId);
   panes.classList.add('resizing');
@@ -384,12 +394,7 @@ divider.onlostpointercapture = () => panes.classList.remove('resizing');
 divider.onpointermove = (event) => {
   if (!divider.hasPointerCapture(event.pointerId)) return;
   const box = panes.getBoundingClientRect();
-  resize(
-    100 *
-      (stacked.matches
-        ? (event.clientY - box.top) / box.height
-        : (event.clientX - box.left) / box.width),
-  );
+  resize((100 * (event.clientX - box.left)) / box.width);
 };
 divider.onkeydown = (event) => {
   if (!['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(event.key))
@@ -401,9 +406,20 @@ divider.onkeydown = (event) => {
   );
 };
 function setExplorer(open) {
+  const drawer = compact.matches && open;
   el('explorer').hidden = !open;
+  el('drawer-backdrop').hidden = !drawer;
+  document.querySelector('.workspace').inert = drawer;
   el('explorer-toggle').setAttribute('aria-expanded', String(open));
 }
+function closeDrawer() {
+  setExplorer(false);
+  el('explorer-toggle').focus();
+}
+el('drawer-backdrop').onclick = closeDrawer;
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && !el('drawer-backdrop').hidden) closeDrawer();
+});
 el('explorer-toggle').onclick = () => setExplorer(el('explorer').hidden);
 for (const button of document.querySelectorAll('[data-action]')) {
   button.onclick = () => el(button.dataset.action).click();
@@ -444,6 +460,6 @@ function escapeExpandedPane(event) {
 }
 document.addEventListener('keydown', escapeExpandedPane);
 frame.addEventListener('keydown', escapeExpandedPane);
-setExplorer(!stacked.matches);
+setExplorer(!compact.matches);
 resetReview(null);
 refresh();
