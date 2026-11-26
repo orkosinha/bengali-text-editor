@@ -78,6 +78,11 @@
       /><button>Load page</button>
     </form>
     <p id="notice" role="status" hidden></p>
+    <dialog id="published-browser" aria-label="Published website">
+      <header><strong>Published website</strong><a id="visit-original" target="_blank" rel="noopener noreferrer">Open original</a><form method="dialog"><button>Close</button></form></header>
+      <p>Read-only view. Open the website folder to edit these pages.</p>
+      <iframe title="Published website" sandbox="allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox" referrerpolicy="no-referrer"></iframe>
+    </dialog>
     <main>
       <button
         id="drawer-backdrop"

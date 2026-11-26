@@ -693,3 +693,14 @@ output {
     white-space: nowrap;
   }
 }
+
+#published-browser {
+  width: min(1100px, 96vw); height: 90dvh; padding: 0;
+  background: var(--base); color: var(--text); border: 1px solid var(--border);
+}
+#published-browser[open] { display: flex; flex-direction: column }
+#published-browser::backdrop { background: #0009 }
+#published-browser header { display: flex; align-items: center; gap: 12px; padding: 8px 12px }
+#published-browser strong { margin-right: auto }
+#published-browser p { color: var(--muted); padding: 4px 12px 10px }
+#published-browser iframe { flex: 1; min-height: 0; border: 0; background: white }

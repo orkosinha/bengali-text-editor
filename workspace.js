@@ -39,22 +39,33 @@ function archiveURL(value, base = archiveHome) {
     throw Error('Choose an HTTPS page on www.ramakrishnavivekananda.info.');
   return url.href;
 }
+const staticSite = location.hostname.endsWith('.github.io') || location.protocol === 'file:';
+class ArchiveUnavailable extends Error {}
 async function download(url) {
-  if (!/^https?:$/.test(location.protocol))
-    throw Error('Run npm start and open the printed address for live access.');
-  const response = await fetch('./api/archive?url=' + encodeURIComponent(url));
-  if (
-    !response.ok ||
-    !response.headers
-      .get('content-type')
-      ?.startsWith('application/octet-stream')
-  ) {
-    throw Error(
-      'Live HTML could not be loaded. Check the page URL. Live access requires the included server (npm start).',
-    );
+  let response;
+  try {
+    response = staticSite
+      ? await fetch(url, {credentials:'omit'})
+      : await fetch('./api/archive?url=' + encodeURIComponent(url));
+  } catch (error) {
+    if (staticSite) throw new ArchiveUnavailable('The browser could not read the published HTML. Use Open original to view it.');
+    throw error;
+  }
+  const type = staticSite ? 'text/html' : 'application/octet-stream';
+  if (!response.ok || !response.headers.get('content-type')?.startsWith(type)) {
+    throw Error('The archive did not return an HTML page for this address.');
   }
   return new Uint8Array(await response.arrayBuffer());
 }
+const browserDialog = el('published-browser');
+function browsePublished(url) {
+  notice('');
+  el('live-form').hidden = true;
+  el('visit-original').href = url;
+  browserDialog.querySelector('iframe').src = url;
+  browserDialog.showModal();
+}
+browserDialog.onclose = () => browserDialog.querySelector('iframe').removeAttribute('src');
 async function openLive(value) {
   const request = ++latestOpen;
   const start = raw;
@@ -78,7 +89,9 @@ async function openLive(value) {
     await openDocument(new File([bytes], name), url);
     el('live-form').hidden = true;
   } catch (error) {
-    if (request === latestOpen) notice(error.message);
+    if (request !== latestOpen) return;
+    if (error instanceof ArchiveUnavailable) browsePublished(archiveURL(value));
+    else notice(error.message);
   }
 }
 el('browse').onclick = () => {

@@ -12,4 +12,4 @@ The live file tree grows from links on pages you visit. Local folders are listed
 
 **Published** and **Diff** compare against a fetched copy of the published HTML. For local files the editor assumes the opened folder is the website root. Change the comparison URL and choose **Load** if the folder starts deeper in the archive. Drag the divider or focus it and use the arrow keys to resize the panes.
 
-The static files also work directly from disk or on GitHub Pages for local editing. Live loading and comparison use the included server because the archive does not grant cross-origin access to its HTML.
+The static files also work directly from disk or on GitHub Pages for local editing. The static editor requests published HTML directly. When the archive restricts cross-origin reads, it opens a read-only browser view. Running the included server enables live editing and comparison.
