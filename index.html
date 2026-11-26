@@ -83,6 +83,14 @@
       <p>Read-only view. Open the website folder to edit these pages.</p>
       <iframe title="Published website" sandbox="allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox" referrerpolicy="no-referrer"></iframe>
     </dialog>
+    <dialog id="link-dialog" aria-labelledby="link-title">
+      <form id="link-form">
+        <h2 id="link-title">Insert link</h2>
+        <label>Link text<textarea id="link-text" rows="2" required></textarea></label>
+        <label>Link destination<input id="link-href" required placeholder="chapter.htm#section" autocomplete="off"></label>
+        <div><button type="button" id="cancel-link">Cancel</button><button class="primary">Insert link</button></div>
+      </form>
+    </dialog>
     <main>
       <button
         id="drawer-backdrop"
@@ -147,6 +155,7 @@
                 </svg>
                 Redo
               </button>
+              <button id="insert-link" hidden title="Insert link (Ctrl+K or ⌘K)">Link</button>
             </div>
             <div class="source-area">
               <div class="line-gutter" aria-hidden="true">

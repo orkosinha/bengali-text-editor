@@ -48,6 +48,14 @@ function position(index) {
   }
   return index + removed;
 }
+function visiblePosition(rawIndex) {
+  let index = rawIndex;
+  for (const [end, removed] of offsets) {
+    if (end + removed > rawIndex) break;
+    index = rawIndex - removed;
+  }
+  return index;
+}
 let past = [],
   future = [];
 const highlight = el('highlight');
@@ -124,6 +132,7 @@ function render() {
   updateLineNumbers();
   scheduleHighlight();
   active?.element?.classList.toggle('dirty', raw !== original);
+  el('insert-link').hidden = !active?.html;
   el('undo').disabled = !past.length;
   el('redo').disabled = !future.length;
   el('status').textContent = raw !== original ? 'Unsaved changes' : '';
@@ -143,11 +152,7 @@ function stepHistory(from, to) {
   to.push({ at, remove: add, add: remove });
   raw = raw.slice(0, at) + add + raw.slice(at + remove.length);
   refresh();
-  let caret = at + add.length;
-  for (const [end, removed] of offsets) {
-    if (end + removed > at + add.length) break;
-    caret = at + add.length - removed;
-  }
+  const caret = visiblePosition(at + add.length);
   editor.setSelectionRange(caret, caret);
   editor.focus();
 }
@@ -157,6 +162,11 @@ editor.onkeydown = (event) => {
   if ((!event.metaKey && !event.ctrlKey) || event.altKey || event.isComposing)
     return;
   const key = event.key.toLowerCase();
+  if (key === 'k' && !event.shiftKey && active?.html) {
+    event.preventDefault();
+    el('insert-link').click();
+    return;
+  }
   if (!['z', 'y'].includes(key)) return;
   event.preventDefault();
   el(key === 'y' || event.shiftKey ? 'redo' : 'undo').click();
@@ -195,13 +205,61 @@ editor.oninput = () => {
     insert = insert.replace(bn, (c) => '&#' + c.charCodeAt(0) + ';');
   const at = position(start),
     until = position(oldEnd);
-  past.push({ at, remove: insert, add: raw.slice(at, until) });
-  future.length = 0;
-  raw = raw.slice(0, at) + insert + raw.slice(until);
+  replaceSource(at, until, insert);
   project();
   if (visible !== value) editor.value = visible;
   render();
 };
+function replaceSource(at, until, insert) {
+  past.push({ at, remove: insert, add: raw.slice(at, until) });
+  future.length = 0;
+  raw = raw.slice(0, at) + insert + raw.slice(until);
+}
+
+const linkDialog = el('link-dialog');
+el('insert-link').onclick = () => {
+  if (!active?.html) return;
+  const start = editor.selectionStart;
+  const end = editor.selectionEnd;
+  const at = position(start), until = position(end);
+  const selected = visible.slice(start, end);
+  const scroll = editor.scrollTop;
+  const form = el('link-form');
+  form.reset();
+  el('link-text').value = selected;
+  el('link-href').setCustomValidity('');
+  linkDialog.showModal();
+  el(selected ? 'link-href' : 'link-text').focus();
+  form.onsubmit = event => {
+    event.preventDefault();
+    const href = el('link-href').value.trim();
+    let destination;
+    try { destination = new URL(href, active.url); } catch {}
+    if (!href || !destination || ['javascript:', 'data:', 'vbscript:'].includes(destination.protocol)) {
+      el('link-href').setCustomValidity('Enter a page address, relative path, or fragment.');
+      el('link-href').reportValidity();
+      return;
+    }
+    function escapeText(value) {
+      let text = value.replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');
+      if (entities) text = text.replace(bn, c => '&#' + c.charCodeAt(0) + ';');
+      return text;
+    }
+    const label = el('link-text').value;
+    const content = label === selected ? raw.slice(at, until) : escapeText(label);
+    const anchor = '<a href="' + escapeText(href).replaceAll('"', '&quot;') + '">' + content + '</a>';
+    replaceSource(at, until, anchor);
+    linkDialog.close();
+    refresh();
+    const caret = visiblePosition(at + anchor.length);
+    editor.focus();
+    editor.setSelectionRange(caret, caret);
+    editor.scrollTop = scroll;
+  };
+};
+el('link-href').oninput = () => el('link-href').setCustomValidity('');
+el('cancel-link').onclick = () => linkDialog.close();
+linkDialog.onclose = () => { el('link-form').onsubmit = null; editor.focus(); };
 const composer = el('phonetic');
 const roman = el('roman');
 const toggle = el('phonetic-toggle');
@@ -313,6 +371,7 @@ function activate(doc) {
     if (compact.matches) setExplorer(false);
     return;
   }
+  if (linkDialog.open) linkDialog.close();
   remember();
   active = doc;
   closeComposition();
@@ -366,6 +425,7 @@ function closeDocument(doc) {
 
 function beginFolder() {
   latestOpen++;
+  if (linkDialog.open) linkDialog.close();
   remember();
   active = null;
   raw = original = '';
@@ -432,6 +492,7 @@ async function openDocument(
       group,
       path: liveURL || path,
       name: file.name,
+      html: Boolean(liveURL) || /\.html?$/i.test(file.name) || file.type === 'text/html',
       url,
       live: !!liveURL,
       raw: text,

@@ -704,3 +704,11 @@ output {
 #published-browser strong { margin-right: auto }
 #published-browser p { color: var(--muted); padding: 4px 12px 10px }
 #published-browser iframe { flex: 1; min-height: 0; border: 0; background: white }
+
+#link-dialog {width: min(26rem, 94vw); padding: 18px; border: 1px solid var(--border); border-radius: 6px; background: var(--chrome); color: var(--text)}
+#link-dialog::backdrop {background: #0008}
+#link-form, #link-form label {display: grid; gap: 6px}
+#link-form {gap: 14px}
+#link-form textarea {font: inherit; color: inherit; background: var(--base); border: 1px solid var(--border); border-radius: 4px; padding: 6px; resize: vertical}
+#link-form > div {display: flex; justify-content: flex-end; gap: 6px}
+#link-form .primary {background: var(--accent); color: #152440}

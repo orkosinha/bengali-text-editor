@@ -229,11 +229,7 @@ function editAt(rawOffset) {
   showMobileReview(false);
   if (document.fullscreenElement === reviewPane) document.exitFullscreen();
   if (reviewPane.classList.contains('is-fullscreen')) exitExpandedPane();
-  let index = rawOffset;
-  for (const [end, removed] of offsets) {
-    if (end + removed > rawOffset) break;
-    index = rawOffset - removed;
-  }
+  const index = visiblePosition(rawOffset);
   editor.focus();
   editor.setSelectionRange(index, index);
   const prefix = visible.slice(0, index);
